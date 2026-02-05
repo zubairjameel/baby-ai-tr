@@ -1,0 +1,7 @@
+/* App.css - Component specific styles can go here if needed */
+.app-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
