@@ -13,9 +13,9 @@ class GeminiService {
             return false;
         }
         this.genAI = new GoogleGenerativeAI(apiKey);
-        this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        // Use json mode for extraction if possible, or just prompting
-        this.extractionModel = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
+        // Using Gemini 2.5 Flash (stable, fast, 2026 standard)
+        this.model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        this.extractionModel = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash", generationConfig: { responseMimeType: "application/json" } });
         return true;
     }
 
@@ -32,14 +32,21 @@ class GeminiService {
       Return ONLY valid JSON.
       Format:
       {
-        "nodes": [{ "id": "ConceptName", "group": "Concept" }],
+        "nodes": [{ "id": "ConceptName", "group": "Concept", "category": "visual|language|motor|logic|emotion|memory" }],
         "links": [{ "source": "ConceptName", "target": "ConceptName", "type": "relation" }]
       }
       Rules:
       1. Keep IDs simple and capitalize First Letter (e.g. "Apple", "Red").
       2. No duplicates in output.
       3. If the user is asking a question, do NOT extract the question words, only the subjects.
-      4. "Group" can be "Object", "Action", "Property", or "Living". Guess best fit.
+      4. "Group": "Object", "Action", "Property", or "Living".
+      5. "Category": Pick ONE that best fits the brain region:
+         - "visual" (colors, shapes, looks)
+         - "language" (words, names, grammar)
+         - "motor" (actions, movement)
+         - "logic" (reasoning, math, because)
+         - "emotion" (feelings, likes, dislikes)
+         - "memory" (facts, history, general)
       
       Text: "${text}"
     `;
@@ -50,7 +57,8 @@ class GeminiService {
             return JSON.parse(response.text());
         } catch (e) {
             console.error("Extraction failed", e);
-            return { nodes: [], links: [] };
+            // Return error in a way that client might see if it checks, though typically silent for extraction
+            return { nodes: [], links: [], error: e.message || e.toString() };
         }
     }
 
@@ -87,7 +95,7 @@ class GeminiService {
             return response.text();
         } catch (e) {
             console.error("Response failed", e);
-            return "Brain hurt...";
+            return `Brain hurt... (${e.message || e.toString()})`;
         }
     }
 }
