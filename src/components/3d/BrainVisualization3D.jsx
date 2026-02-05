@@ -1,8 +1,10 @@
 import React, { Suspense, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Stars, Environment } from '@react-three/drei';
+import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { useBrainStore } from '../../store/useBrainStore';
 import BrainRegions from './BrainRegions';
+import BrainParticles from './BrainParticles';
 import Neuron from './Neuron';
 import Synapse from './Synapse';
 
@@ -20,36 +22,31 @@ const BrainVisualization3D = () => {
     }, []);
 
     return (
-        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-            {/* Overlay Stats */}
-            <div style={{ position: 'absolute', top: 20, left: 20, zIndex: 10, pointerEvents: 'none' }}>
-                <h2 className="glow-text" style={{ margin: 0, fontSize: '1.2rem', color: 'var(--text-muted)' }}>CORTEX VISUALIZER 3D</h2>
-                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)', opacity: 0.7 }}>
-                    Active Neurons: {nodes.length} | Synapses: {links.length}
-                </p>
-            </div>
-
-            <Canvas>
+        <div style={{ width: '100%', height: '100%', position: 'relative', background: '#000005' }}>
+            <Canvas gl={{ antialias: false, pixelRatio: 1.5 }}>
                 <PerspectiveCamera makeDefault position={[0, 0, 45]} fov={60} />
                 <OrbitControls
                     enablePan={false}
                     maxDistance={80}
                     minDistance={10}
                     autoRotate
-                    autoRotateSpeed={0.5}
+                    autoRotateSpeed={0.8}
                 />
 
-                {/* Environment */}
-                <color attach="background" args={['#050510']} />
+                {/* Environment & Lighting (Sci-Fi Deep Space) */}
+                <color attach="background" args={['#000005']} />
                 <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-                <ambientLight intensity={0.4} />
-                <pointLight position={[10, 10, 10]} intensity={1} />
-                <pointLight position={[-10, -10, -10]} intensity={0.5} color="#4c1d95" />
+
+                <ambientLight intensity={0.2} />
+                <pointLight position={[10, 10, 10]} intensity={1} color="#4f46e5" />
+                <pointLight position={[-10, -10, -10]} intensity={1} color="#db2777" />
+                <pointLight position={[0, 20, 0]} intensity={0.5} color="#06b6d4" />
 
                 <Suspense fallback={null}>
                     <group rotation={[0, Math.PI / 4, 0]}>
-                        {/* Brain Structure */}
+                        {/* Visual Structure */}
                         <BrainRegions />
+                        <BrainParticles />
 
                         {/* Nodes (Neurons) */}
                         {nodes.map((node) => (
@@ -61,11 +58,6 @@ const BrainVisualization3D = () => {
 
                         {/* Links (Synapses) */}
                         {links.map((link, i) => {
-                            // Find positions
-                            // Note: link.source/target might be just IDs or Objects depending on how store handles it.
-                            // Implementation plan/store implies strings or objects. 
-                            // Store addLink keeps them as strings/objects consistent with logic.
-                            // But here we need to find the Node object to get position.
                             const sourceNode = nodes.find(n => n.id === (link.source.id || link.source));
                             const targetNode = nodes.find(n => n.id === (link.target.id || link.target));
 
@@ -83,6 +75,10 @@ const BrainVisualization3D = () => {
                         })}
                     </group>
                 </Suspense>
+
+                <EffectComposer disableNormalPass>
+                    <Bloom luminanceThreshold={0.2} luminanceSmoothing={0.9} height={300} intensity={1.5} />
+                </EffectComposer>
             </Canvas>
         </div>
     );

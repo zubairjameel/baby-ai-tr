@@ -13,22 +13,11 @@ const BrainRegions = () => {
                         <meshStandardMaterial
                             color={region.color}
                             transparent
-                            opacity={0.05} // Very subtle ghost orb
+                            opacity={0.02} // Almost invisible, let particles define it
                             wireframe
+                            wireframeLinewidth={0.5}
                         />
                     </mesh>
-
-                    {/* Region Label */}
-                    <Text
-                        position={[0, 8, 0]}
-                        fontSize={2}
-                        color={region.color}
-                        anchorX="center"
-                        anchorY="middle"
-                        fillOpacity={0.5}
-                    >
-                        {region.label}
-                    </Text>
                 </group>
             ))}
 

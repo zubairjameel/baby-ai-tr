@@ -11,18 +11,15 @@ const Neuron = ({ position, color, label, strength, activationLevel }) => {
     useFrame((state) => {
         if (meshRef.current) {
             // Base scale based on strength + pulse if activated
-            const targetScale = (0.5 + (strength * 0.1)) * (1 + activationLevel * 0.5);
+            // More intense pulse frequency and amplitude
+            const pulse = Math.sin(state.clock.elapsedTime * 6) * 0.1;
+            const targetScale = (0.5 + (strength * 0.1)) * (1 + activationLevel * 0.8 + pulse * activationLevel);
 
-            // Smooth lerp to target scale
-            meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
-
-            // Rotate slowly for life
-            meshRef.current.rotation.x += 0.005;
-            meshRef.current.rotation.y += 0.005;
+            meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.2);
         }
     });
 
-    const glowIntensity = 0.5 + (activationLevel * 2);
+    const glowIntensity = 1.0 + (activationLevel * 5); // Super bright on activation
 
     return (
         <group position={position}>
@@ -32,15 +29,22 @@ const Neuron = ({ position, color, label, strength, activationLevel }) => {
                 onPointerOver={() => setHovered(true)}
                 onPointerOut={() => setHovered(false)}
             >
-                <sphereGeometry args={[1, 32, 32]} />
+                <sphereGeometry args={[0.8, 32, 32]} />
                 <meshStandardMaterial
                     color={color}
                     emissive={color}
                     emissiveIntensity={glowIntensity}
-                    roughness={0.3}
-                    metalness={0.8}
+                    toneMapped={false} // Allow bloom to blow out
                 />
             </mesh>
+
+            {/* Halo / Glow Sphere (for extra volume) */}
+            {activationLevel > 0.1 && (
+                <mesh position={[0, 0, 0]} scale={[1.5, 1.5, 1.5]}>
+                    <sphereGeometry args={[0.8, 16, 16]} />
+                    <meshBasicMaterial color={color} transparent opacity={0.2 * activationLevel} />
+                </mesh>
+            )}
 
             {/* Dendrites (Spikes) */}
             {[...Array(6)].map((_, i) => (
