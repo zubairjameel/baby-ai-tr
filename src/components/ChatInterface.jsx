@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Cpu, Brain, Zap } from 'lucide-react';
 import { geminiService } from '../services/gemini';
-import { memoryStore } from '../services/memory';
+import { integrateKnowledge } from '../store/knowledgeIntegration';
+import { useBrainStore } from '../store/useBrainStore';
 
 const ChatInterface = () => {
     const [messages, setMessages] = useState([
@@ -28,13 +29,26 @@ const ChatInterface = () => {
         try {
             // 1. Extract Knowledge (Learning)
             const newKnowledge = await geminiService.extractKnowledge(userText);
+
+            // 2. Integrate into 3D Brain
             if (newKnowledge.nodes && newKnowledge.nodes.length > 0) {
-                memoryStore.integrate(newKnowledge.nodes, newKnowledge.links);
+                integrateKnowledge(newKnowledge);
+
+                // Activate these concepts visually
+                const nodeIds = newKnowledge.nodes.map(n => n.id);
+                useBrainStore.getState().activateConcepts(nodeIds);
             }
 
-            // 2. Respond based on Memory
-            const context = memoryStore.getContext();
-            const response = await geminiService.respond(userText, context);
+            // 3. Get Context from 3D Store
+            const state = useBrainStore.getState();
+            const memoryContext = state.nodes.map(n =>
+                `${n.id} (is a ${n.category})`
+            ).join(', ') +
+                "\nRelationships: " +
+                state.links.map(l => `${l.source} ${l.type} ${l.target}`).join(', ');
+
+            // 4. Respond
+            const response = await geminiService.respond(userText, memoryContext);
 
             setMessages(prev => [...prev, { role: 'ai', content: response }]);
         } catch (error) {

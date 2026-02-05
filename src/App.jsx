@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import './App.css';
-import BrainGraph from './components/BrainGraph';
+import BrainVisualization3D from './components/3d/BrainVisualization3D';
 import ChatInterface from './components/ChatInterface';
 import { geminiService } from './services/gemini';
+import './App.css';
 
 function App() {
   const [apiKey, setApiKey] = useState(import.meta.env.VITE_GEMINI_API_KEY || '');
@@ -52,12 +51,12 @@ function App() {
   return (
     <div className="app-container">
       {/* Brain View - Takes remaining space */}
-      <div style={{ flex: 1, padding: '20px', height: '100vh' }}>
-        <BrainGraph />
+      <div style={{ flex: 1, height: '100vh', position: 'relative' }}>
+        <BrainVisualization3D />
       </div>
 
       {/* Chat View - Fixed sidebar */}
-      <div style={{ width: '450px', padding: '20px', height: '100vh' }}>
+      <div style={{ width: '450px', padding: '20px', height: '100vh', zIndex: 10 }}>
         <ChatInterface />
       </div>
     </div>
