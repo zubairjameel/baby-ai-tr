@@ -1,8 +1,10 @@
 import { create } from 'zustand';
+import { BRAIN_REGIONS } from './constants';
 
 export const useBrainStore = create((set, get) => ({
     nodes: [],
     links: [],
+    signals: [], // { id, startPos, endPos, progress, speed, color }
 
     // Actions
     addNode: (node) => set((state) => {
@@ -44,15 +46,49 @@ export const useBrainStore = create((set, get) => ({
         };
     }),
 
+    // Trigger a visual signal between regions (The Wow Factor)
+    triggerSignal: (fromRegionId, toRegionId) => set((state) => {
+        const startRegion = Object.values(BRAIN_REGIONS).find(r => r.id === fromRegionId);
+        const endRegion = Object.values(BRAIN_REGIONS).find(r => r.id === toRegionId);
+
+        if (!startRegion || !endRegion) return {};
+
+        // Create a new signal
+        const newSignal = {
+            id: Math.random().toString(36).substr(2, 9),
+            startPos: startRegion.position,
+            endPos: endRegion.position,
+            progress: 0,
+            speed: 0.02, // Adjust for travel time
+            color: '#fbbf24' // Gold/Energy color
+        };
+
+        return { signals: [...state.signals, newSignal] };
+    }),
+
     // Decay activation over time (called by animation loop)
-    decayActivation: () => set((state) => ({
-        nodes: state.nodes.map(n => ({
+    decayActivation: () => set((state) => {
+        // 1. Decay Nodes/Links
+        const newNodes = state.nodes.map(n => ({
             ...n,
             activationLevel: Math.max(0, n.activationLevel - 0.02)
-        })),
-        links: state.links.map(l => ({
+        }));
+
+        const newLinks = state.links.map(l => ({
             ...l,
             activationLevel: Math.max(0, l.activationLevel - 0.02)
-        }))
-    }))
+        }));
+
+        // 2. Update Signals
+        let activeSignals = state.signals.map(s => ({
+            ...s,
+            progress: s.progress + s.speed
+        })).filter(s => s.progress < 1); // Remove finished signals
+
+        return {
+            nodes: newNodes,
+            links: newLinks,
+            signals: activeSignals
+        };
+    })
 }));

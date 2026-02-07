@@ -31,6 +31,12 @@ const ChatInterface = () => {
             // 1. Extract Knowledge
             const newKnowledge = await geminiService.extractKnowledge(userText);
 
+            // 1.5. CHECK FOR "WOW FACTOR" TRIGGER (Math/Logic)
+            if (userText.match(/2\s*\+\s*2|math|calculate|solve/i)) {
+                // Trigger the "Visual -> Logic" pathway
+                useBrainStore.getState().triggerSignal('visual', 'logic');
+            }
+
             // 2. Integrate into 3D Brain
             if (newKnowledge.nodes && newKnowledge.nodes.length > 0) {
                 integrateKnowledge(newKnowledge);

@@ -7,6 +7,7 @@ import BrainRegions from './BrainRegions';
 import BrainParticles from './BrainParticles';
 import BrainModel from './BrainModel';
 import Neuron from './Neuron';
+import Signal from './Signal';
 import Synapse from './Synapse';
 
 // Error Boundary for the model loader
@@ -92,6 +93,12 @@ const BrainVisualization3D = () => {
                                 />
                             );
                         })}
+
+                        {/* Signals (Light Trails) */}
+                        {useBrainStore(state => state.signals).map(signal => (
+                            <Signal key={signal.id} {...signal} />
+                        ))}
+
                     </group>
                 </Suspense>
 
