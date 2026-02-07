@@ -1,11 +1,11 @@
 import React, { useRef } from 'react';
 import { useGLTF } from '@react-three/drei';
-import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 
 const BrainModel = () => {
     const group = useRef();
-    const { nodes } = useGLTF('/models/brain.glb');
+    // Load the full scene to preserve original materials and hierarchy
+    const { scene } = useGLTF('/models/brain.glb');
 
     // Auto-rotate the hologram slowly
     useFrame((state, delta) => {
@@ -15,26 +15,10 @@ const BrainModel = () => {
     });
 
     return (
-        <group ref={group} dispose={null} scale={[20, 20, 20]} rotation={[0, Math.PI, 0]}>
-            {/* Render meshes as Holographic Points */}
-            {Object.keys(nodes).map((key) => {
-                const node = nodes[key];
-                if (node.isMesh) {
-                    return (
-                        <points key={key} geometry={node.geometry}>
-                            <pointsMaterial
-                                size={0.05} // Small dots
-                                color="#22d3ee" // Cyan/Electric Blue
-                                transparent
-                                opacity={0.8}
-                                sizeAttenuation
-                                blending={THREE.AdditiveBlending}
-                            />
-                        </points>
-                    )
-                }
-                return null;
-            })}
+        // Scale = 30 to ensure it's large enough to contain the neurons
+        <group ref={group} dispose={null} scale={[30, 30, 30]} rotation={[0, Math.PI, 0]}>
+            {/* Render the GLB exactly as imported */}
+            <primitive object={scene} />
         </group>
     );
 };
