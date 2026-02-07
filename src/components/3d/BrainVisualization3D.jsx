@@ -5,8 +5,20 @@ import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { useBrainStore } from '../../store/useBrainStore';
 import BrainRegions from './BrainRegions';
 import BrainParticles from './BrainParticles';
+import BrainModel from './BrainModel';
 import Neuron from './Neuron';
 import Synapse from './Synapse';
+
+// Error Boundary for the model loader
+class ModelErrorBoundary extends React.Component {
+    constructor(props) { super(props); this.state = { hasError: false }; }
+    static getDerivedStateFromError(error) { return { hasError: true }; }
+    componentDidCatch(error, errorInfo) { console.log("No brain model found, using particles."); }
+    render() {
+        if (this.state.hasError) return this.props.fallback;
+        return this.props.children;
+    }
+}
 
 const BrainVisualization3D = () => {
     const nodes = useBrainStore(state => state.nodes);
@@ -44,9 +56,16 @@ const BrainVisualization3D = () => {
 
                 <Suspense fallback={null}>
                     <group rotation={[0, Math.PI / 4, 0]}>
+                        {/* 
+                            Brain Hologram (External Model) 
+                            Falls back to generated particles if model is missing/broken 
+                        */}
+                        <ModelErrorBoundary fallback={<BrainParticles />}>
+                            <BrainModel />
+                        </ModelErrorBoundary>
+
                         {/* Visual Structure */}
                         <BrainRegions />
-                        <BrainParticles />
 
                         {/* Nodes (Neurons) */}
                         {nodes.map((node) => (
