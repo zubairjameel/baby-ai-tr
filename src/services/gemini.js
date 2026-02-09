@@ -13,9 +13,9 @@ class GeminiService {
             return false;
         }
         this.genAI = new GoogleGenerativeAI(apiKey);
-        // Using Gemini 2.5 Flash (stable, fast, 2026 standard)
-        this.model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        this.extractionModel = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash", generationConfig: { responseMimeType: "application/json" } });
+        // Using Gemini 3 Flash Preview (Official Gemini 3 Hackathon model)
+        this.model = this.genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+        this.extractionModel = this.genAI.getGenerativeModel({ model: "gemini-3-flash-preview", generationConfig: { responseMimeType: "application/json" } });
         return true;
     }
 
@@ -57,7 +57,16 @@ class GeminiService {
             return JSON.parse(response.text());
         } catch (e) {
             console.error("Extraction failed", e);
-            // Return error in a way that client might see if it checks, though typically silent for extraction
+
+            // Check if it's a quota error
+            if (e.message?.includes('quota') || e.message?.includes('429') || e.message?.includes('RESOURCE_EXHAUSTED')) {
+                return {
+                    nodes: [],
+                    links: [],
+                    error: "⚠️ API quota reached. The demo is temporarily paused. Please try again later or contact the developers for a fresh API key."
+                };
+            }
+
             return { nodes: [], links: [], error: e.message || e.toString() };
         }
     }
@@ -95,6 +104,12 @@ class GeminiService {
             return response.text();
         } catch (e) {
             console.error("Response failed", e);
+
+            // Friendly quota message
+            if (e.message?.includes('quota') || e.message?.includes('429') || e.message?.includes('RESOURCE_EXHAUSTED')) {
+                return "Zzz... (Baby AI is tired. The free API quota has been reached. Please contact the developers or try again tomorrow!)";
+            }
+
             return `Brain hurt... (${e.message || e.toString()})`;
         }
     }

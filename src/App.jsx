@@ -9,7 +9,18 @@ function App() {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    if (apiKey) {
+    // Auto-initialize from .env if available
+    const envKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (envKey && envKey !== 'your_api_key_here') {
+      setApiKey(envKey);
+      if (geminiService.initialize(envKey)) {
+        setIsReady(true);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (apiKey && !isReady) {
       if (geminiService.initialize(apiKey)) {
         setIsReady(true);
       }
@@ -22,7 +33,8 @@ function App() {
     setApiKey(key);
   };
 
-  if (!isReady) {
+  // Only show initialization screen if no env key is set
+  if (!isReady && (!import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY === 'your_api_key_here')) {
     return (
       <div style={{
         display: 'flex',
@@ -51,13 +63,13 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* Brain View - Takes remaining space */}
-      <div style={{ flex: 1, height: '100vh', position: 'relative' }}>
+      {/* Brain View - Full screen */}
+      <div style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0 }}>
         <BrainVisualization3D />
       </div>
 
-      {/* Chat View - Fixed sidebar */}
-      <div style={{ width: '450px', padding: '20px', height: '100vh', zIndex: 10 }}>
+      {/* Chat View - Floating overlay */}
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 10, pointerEvents: 'none' }}>
         <ChatInterface />
       </div>
     </div>

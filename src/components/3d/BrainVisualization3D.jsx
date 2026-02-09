@@ -103,7 +103,13 @@ const BrainVisualization3D = () => {
                 </Suspense>
 
                 <EffectComposer disableNormalPass>
-                    <Bloom luminanceThreshold={0.2} luminanceSmoothing={0.9} height={300} intensity={1.5} />
+                    {/* Toned down bloom to match reference: higher threshold, lower intensity */}
+                    <Bloom
+                        luminanceThreshold={0.6} // Only very bright things glow
+                        luminanceSmoothing={0.1} // Sharp cutoff
+                        height={300}
+                        intensity={0.5} // Subtle glow, not blinding
+                    />
                 </EffectComposer>
             </Canvas>
         </div>
