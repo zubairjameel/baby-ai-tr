@@ -64,6 +64,63 @@ This isn't just visualization—it's **cognitive transparency**. You're not just
 
 ---
 
+## 🤖 Gemini 3 API Integration
+
+Baby AI is powered by **Google's Gemini 3 Flash Preview** model, leveraging three critical features that make real-time neural visualization possible:
+
+### 1. **Ultra-Low Latency** ⚡
+The Gemini 3 Flash Preview model provides near-instant responses, enabling:
+- **Real-time neuron spawning** - Concepts appear in the brain within milliseconds of teaching
+- **Smooth signal animations** - Neural pathways light up without lag when processing queries
+- **Fluid user experience** - No waiting for the AI to "think"—it feels alive
+
+**Why it matters:** Traditional LLMs have 2-5 second response times. Gemini 3 Flash Preview's sub-second latency makes the brain visualization feel like a living organism, not a loading screen.
+
+### 2. **Structured JSON Output** 📊
+We use Gemini's `responseMimeType: "application/json"` feature to extract knowledge in a structured format:
+
+```javascript
+{
+  "nodes": [
+    { "id": "sky", "category": "visual", "description": "The sky" },
+    { "id": "blue", "category": "visual", "description": "The color blue" }
+  ],
+  "connections": [
+    { "from": "sky", "to": "blue", "relationship": "has_property" }
+  ]
+}
+```
+
+**Why it matters:** This allows us to:
+- Map concepts to **specific brain regions** (visual cortex, language areas, logic centers)
+- Create **precise neural connections** between related ideas
+- Build a **navigable knowledge graph** in 3D space
+
+Without JSON mode, we'd have to parse messy text responses—slow, error-prone, and unreliable.
+
+### 3. **Instruction Adherence** 🎯
+Gemini 3 Flash Preview follows complex system prompts with high fidelity, enabling:
+- **Consistent knowledge extraction** - Always returns the same JSON structure
+- **Spatial reasoning** - Correctly categorizes concepts into brain regions (e.g., "Paris" → language, "2+2" → logic)
+- **Contextual memory** - Recalls previously taught concepts when answering questions
+
+**Why it matters:** The AI must understand nuanced instructions like "categorize this concept into visual/language/logic/motor/memory" and "only use knowledge from the provided context." Gemini 3's instruction adherence makes this reliable.
+
+---
+
+### How It All Comes Together
+
+1. **User teaches:** "The sky is blue"
+2. **Gemini extracts (JSON mode):** `{ nodes: ["sky", "blue"], connections: [{"sky" → "blue"}] }`
+3. **Brain visualizes (low latency):** Neurons spawn in the visual cortex within 200ms
+4. **User asks:** "What color is the sky?"
+5. **Gemini recalls (instruction adherence):** Uses only the taught knowledge to answer
+6. **Brain animates (real-time):** Signal travels from visual → language regions
+
+**Without Gemini 3's features, this project wouldn't be possible.** The combination of speed, structure, and reliability is what makes the "transparent AI mind" concept work.
+
+---
+
 ## 🚀 Try It Live
 
 **[baby-ai-tr.vercel.app](https://baby-ai-tr.vercel.app)**
